@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desire Tracker</title>
+    <style>
+        /* Core reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Main background with fixed image */
+        body {
+            background-image: url('https://images.unsplash.com/photo-1557103224-66837249473e?crop=entropy&cs=srgb&fm=jpg&ixid=M3wzMjM4NDZ8MHwxfHJhbmRvbXx8fHx8fHx8fDE3MzU2NDA1MTF8&ixlib=rb-4.0.3&q=85');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #333;
+            font-size: 16px;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Glass morphic header */
+        .header {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .user-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Glass morphic main container */
+        .container {
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1),
+                0 1px 2px rgba(255, 255, 255, 0.3);
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            color: #1a202c;
+        }
+
+        /* Authentication buttons */
+        .input-methods {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        /* View toggle styling */
+        .view-toggle {
+            background: rgba(74, 85, 104, 0.9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 0 auto 20px;
+            display: block;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .view-toggle:hover {
+            background: rgba(45, 55, 72, 0.9);
+            transform: translateY(-1px);
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(203, 213, 224, 0.8);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.2s ease;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Button styles */
+        button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: #4a5568;
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: #4299e1;
+        }
+
+        .btn-danger {
+            background: #f56565;
+        }
+
+        .btn-success {
+            background: #48bb78;
+        }
+
+        /* Desire cards */
+        .desire-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+
+        .desire-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .desire-card.completed {
+            border-left: 4px solid #48bb78;
+        }
+
+        /* Notes section */
+        .notes-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(0, 0, 0, 0.1);
+        }
+
+        .note {
+            background: rgba(247, 250, 252, 0.8);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Gratitude section */
+        .gratitude-section {
+            background: rgba(240, 255, 244, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .gratitude-note {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #48bb78;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            background: rgba(74, 85, 104, 0.95);
+            color: white;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            background: rgba(247, 250, 252, 0.8);
+            border-radius: 12px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .desire-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header with User Info -->
+    <div class="header">
+        <div class="user-info">
+            <span id="userName">Guest</span>
+            <span id="userEmail"></span>
+        </div>
+        <button id="signOutBtn" class="btn-danger" style="display: none;">Sign Out</button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1>✨ Desire Tracker</h1>
+
+        <!-- Authentication Button -->
+        <div class="input-methods">
+            <button id="googleSignInBtn" class="btn-primary">
+                🔑 Sign In with Google
+            </button>
+        </div>
+
+        <!-- Archive Toggle -->
+        <button id="viewToggleBtn" class="view-toggle">
+            📦 View Archive
+        </button>
+
+        <!-- Desire Input Form -->
+        <form id="desireForm">
+            <div class="form-group">
+                <label for="desireTitle">What's your desire?</label>
+                <input type="text" id="desireTitle" required placeholder="Enter your desire...">
+            </div>
+            <div class="form-group">
+                <label for="desireDescription">Description</label>
+                <textarea id="desireDescription" placeholder="Describe your desire in detail..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary">Add Desire</button>
+        </form>
+
+        <!-- Desires List Container -->
+        <div id="desiresList"></div>
+        <!-- Empty State Message -->
+        <div id="emptyState" class="empty-state">
+            No desires added yet. Start by adding one!
+        </div>
+    </div>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, signInWithPopup, signOut, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            deleteDoc,
+            updateDoc,
+            arrayUnion,
+            arrayRemove,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLfBy9R_tL8WPRJpmKZMcy70OzhId9V1w",
+            authDomain: "desires-b59a7.firebaseapp.com",
+            projectId: "desires-b59a7",
+            storageBucket: "desires-b59a7.firebasestorage.app",
+            messagingSenderId: "942109661123",
+            appId: "1:942109661123:web:84f2532a442f9d49bb8f76"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+
+        class DesireCard extends HTMLElement {
+          constructor() {
+            super();
+           this.attachShadow({ mode: 'open' });
+            }
+            connectedCallback() {
+               this.render();
+                this.shadowRoot.addEventListener('click', (event) => {
+                    if (event.target.classList.contains('delete-btn')) {
+                        this.handleDelete();
+                     } else if (event.target.classList.contains('complete-btn')) {
+                         this.handleComplete();
+                   } else if (event.target.classList.contains('add-note-btn')) {
+                       this.handleAddNote();
+                   } else if (event.target.classList.contains('add-gratitude-btn')) {
+                       this.handleAddGratitude();
+                 } else if (event.target.classList.contains('note-delete')) {
+                         this.handleDeleteNote(event.target.dataset.noteId);
+                    }
+                });
+            }
+          static get observedAttributes() {
+            return ['desire'];
+        }
+        attributeChangedCallback(name, oldValue, newValue) {
+                if (name === 'desire') {
+                  this.desire = JSON.parse(newValue);
+              }
+               this.render();
+           }
+            handleDelete() {
+              this.dispatchEvent(new CustomEvent('desire-delete', { detail: { id: this.desire.id } }));
+            }
+           handleComplete(){
+               this.dispatchEvent(new CustomEvent('desire-complete', { detail: { id: this.desire.id } }));
+           }
+          handleDeleteNote(noteId) {
+                this.dispatchEvent(new CustomEvent('note-delete', { detail: { id: this.desire.id, noteId } }));
+            }
+            handleAddNote() {
+               const noteInput = this.shadowRoot.querySelector('.note-input input');
+                  const noteText = noteInput.value.trim();
+                if (noteText) {
+                   this.dispatchEvent(new CustomEvent('note-add', { detail: { id: this.desire.id, noteText } }));
+                   noteInput.value = '';
+                  }
+             }
+
+            handleAddGratitude() {
+              const gratitudeInput = this.shadowRoot.querySelector('.gratitude-input input');
+              const gratitudeText = gratitudeInput.value.trim();
+            if (gratitudeText) {
+                  this.dispatchEvent(new CustomEvent('gratitude-add', { detail: { id: this.desire.id, gratitudeText } }));
+                  gratitudeInput.value = '';
+               }
+            }
+          render() {
+            if (!this.desire) return;
+              this.shadowRoot.innerHTML = `
+              <style>
+               .desire-card {
+                   background: rgba(255, 255, 255, 0.9);
+                    backdrop-filter: blur(8px);
+                  -webkit-backdrop-filter: blur(8px);
+                  border: 1px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                   transition: transform 0.2s ease;
+                  position: relative;
+                   }
+
+                   .desire-card:hover {
+                      transform: translateY(-2px);
+                    }
+
+                   .desire-card.completed {
+                        border-left: 4px solid #48bb78;
+                 }
+
+                   .notes-section {
+                       margin-top: 15px;
+                      padding-top: 15px;
+                       border-top: 1px dashed rgba(0, 0, 0, 0.1);
+                   }
+                   .note {
+                       background: rgba(247, 250, 252, 0.8);
+                       padding: 12px;
+                     border-radius: 8px;
+                      margin-bottom: 10px;
+                     display: flex;
+                      justify-content: space-between;
+                     align-items: center;
+                     }
+
+                      .gratitude-section {
+                           background: rgba(240, 255, 244, 0.8);
+                           padding: 15px;
+                         border-radius: 8px;
+                         margin-top: 15px;
+                       }
+
+                     .gratitude-note {
+                         background: rgba(255, 255, 255, 0.9);
+                            padding: 12px;
+                          border-radius: 8px;
+                           margin-bottom: 10px;
+                           border-left: 3px solid #48bb78;
+                      }
+                       .note-input {
+                            margin-top: 10px;
+                       }
+                </style>
+                <div class="desire-card ${this.desire.completed ? 'completed' : ''}" data-id="${this.desire.id}">
+                 <h3>${this.desire.title}</h3>
+                 <p>${this.desire.description || 'No description provided.'}</p>
+                   ${this.desire.completed ? `
+                        <div class="gratitude-section">
+                            <h4>Completed: ${new Date(this.desire.completionDate).toLocaleDateString()}</h4>
+                           ${(this.desire.gratitudeNotes || []).map(note => `
+                             <div class="gratitude-note">
+                                <p>${note.text}</p>
+                                <small>${new Date(note.date).toLocaleDateString()}</small>
+                             </div>
+                           `).join('')}
+                           <div class="note-input gratitude-input">
+                            <input type="text" placeholder="Express your gratitude..." />
+                                  <button class="add-gratitude-btn">Add Gratitude</button>
+                            </div>
+                       </div>
+                      ` : `
+                       <button class="complete-btn btn-success">
+                         ✓ Mark Complete
+                       </button>
+                   `}
+                 <div class="notes-section">
+                     <div class="note-list">
+                         ${(this.desire.notes || []).map(note => `
+                             <div class="note">
+                                <span>${note.text}</span>
+                                <small>${new Date(note.date).toLocaleDateString()}</small>
+                                 <button class="note-delete" data-note-id="${note.id}">✖</button>
+                            </div>
+                           `).join('')}
+                    </div>
+                     <div class="note-input">
+                         <input type="text" placeholder="Add a progress note..." />
+                           <button class="add-note-btn">Add Note</button>
+                     </div>
+                </div>
+                 <button class="delete-btn">🗑️</button>
+           </div>
+                `;
+          }
+
+        }
+        customElements.define('desire-card', DesireCard);
+
+        class DesireTracker {
+            constructor() {
+                this.desires = [];
+                this.userId = null;
+                this.isViewingArchive = false;
+                this.form = document.getElementById('desireForm');
+                this.list = document.getElementById('desiresList');
+                this.toastEl = document.getElementById('toast');
+                this.emptyState = document.getElementById('emptyState');
+                this.userNameEl = document.getElementById('userName');
+                this.userEmailEl = document.getElementById('userEmail');
+                this.signOutBtn = document.getElementById('signOutBtn');
+               this.viewToggleBtn = document.getElementById('viewToggleBtn');
+                this.initialize();
+            }
+
+            initialize() {
+              this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+              this.list.addEventListener('desire-delete', (e) => this.handleCardActions(e, 'delete'));
+              this.list.addEventListener('desire-complete', (e) => this.handleCardActions(e, 'complete'));
+               this.list.addEventListener('note-delete', (e) => this.handleCardActions(e, 'note-delete'));
+              this.list.addEventListener('note-add', (e) => this.handleCardActions(e, 'note-add'));
+            this.list.addEventListener('gratitude-add', (e) => this.handleCardActions(e, 'gratitude-add'));
+              this.signOutBtn.addEventListener('click', () => this.handleSignOut());
+               this.viewToggleBtn.addEventListener('click', () => this.toggleView());
+                onAuthStateChanged(auth, async (user) => {
+                     if (user) {
+                         this.handleUserSignedIn(user);
+                    } else {
+                          this.handleUserSignedOut();
+                      }
+              });
+              document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+                   const provider = new GoogleAuthProvider();
+                  try {
+                      const result = await signInWithPopup(auth, provider);
+                        this.showToast(`Welcome, ${result.user.displayName}!`);
+                   } catch (error) {
+                        console.error('Authentication error:', error);
+                       this.showToast('Failed to sign in', true);
+                 }
+            });
+          }
+            async handleSignOut() {
+                try {
+                   await signOut(auth);
+                     this.showToast('Signed out successfully!');
+              } catch (error) {
+                   console.error('Sign-out error:', error);
+                   this.showToast('Error signing out', true);
+                }
+          }
+            async handleUserSignedIn(user) {
+                this.userId = user.uid;
+               this.userNameEl.textContent = user.displayName;
+                this.userEmailEl.textContent = user.email;
+              this.signOutBtn.style.display = 'inline-block';
+                document.getElementById('googleSignInBtn').style.display = 'none';
+              await this.fetchDesires();
+            }
+         handleUserSignedOut() {
+                 this.userId = null;
+                 this.userNameEl.textContent = 'Guest';
+              this.userEmailEl.textContent = '';
+                this.signOutBtn.style.display = 'none';
+                document.getElementById('googleSignInBtn').style.display = 'inline-block';
+              this.desires = [];
+               this.displayDesires();
+           }
+            toggleView() {
+               this.isViewingArchive = !this.isViewingArchive;
+               this.viewToggleBtn.textContent = this.isViewingArchive ?
+                   '👁️ View Active Desires' :
+                   '📦 View Archive';
+               this.displayDesires();
+           }
+            async fetchDesires() {
+                if (!this.userId) return;
+                try {
+                  const userDesires = collection(db, 'users', this.userId, 'desires');
+                    onSnapshot(userDesires,(snapshot)=>{
+                      this.desires = snapshot.docs.map(doc => ({
+                           id: doc.id,
+                         ...doc.data()
+                         }));
+                     this.displayDesires();
+                    }, (error) => {
+                        console.error('Error fetching desires:', error);
+                        this.showToast('Failed to load desires', true);
+                   })
+
+                } catch (error) {
+                  console.error('Error fetching desires:', error);
+                     this.showToast('Failed to load desires', true);
+                }
+           }
+
+
+            async handleSubmit(e) {
+              e.preventDefault();
+              const title = document.getElementById('desireTitle').value.trim();
+             const description = document.getElementById('desireDescription').value.trim();
+               if (!title) {
+                   this.showToast('Title cannot be empty', true);
+                   return;
+                }
+                 const newDesire = {
+                      title,
+                     description,
+                    notes: [],
+                    completed: false,
+                     completionDate: null,
+                     gratitudeNotes: [],
+                    date: new Date().toISOString()
+                };
+
+              try {
+                  if (this.userId) {
+                    const userDesires = collection(db, 'users', this.userId, 'desires');
+                       const docRef = await addDoc(userDesires, newDesire);
+                     newDesire.id = docRef.id;
+                   } else {
+                      newDesire.id = Date.now().toString();
+                 }
+                    this.desires.unshift(newDesire);
+                    this.displayDesires();
+                    this.form.reset();
+                  this.showToast('Desire added successfully! 🌟');
+             } catch (error) {
+                    console.error('Error adding desire:', error);
+                    this.showToast('Failed to add desire', true);
+                 }
+             }
+
+
+             async handleCardActions(e,action) {
+                 const { id, noteId, noteText, gratitudeText } = e.detail;
+                  if(action === 'delete'){
+                    await this.deleteDesire(id)
+                    }else if(action === 'complete'){
+                      await this.completeDesire(id);
+                     }
+                    else if(action === 'note-add'){
+                       await this.addNote(id, noteText)
+                     }else if(action === 'note-delete'){
+                          await this.deleteNote(id,noteId);
+                    }else if(action === 'gratitude-add'){
+                       await this.addGratitudeNote(id,gratitudeText);
+                    }
+              }
+
+        async deleteDesire(id) {
+            try {
+               if (this.userId) {
+                const desireDoc = doc(db, 'users', this.userId, 'desires', id);
+                await deleteDoc(desireDoc);
+               }
+                this.desires = this.desires.filter(d => d.id !== id);
+                this.displayDesires();
+               this.showToast('Desire deleted successfully! 🗑️');
+            } catch (error) {
+                 console.error('Error deleting desire:', error);
+              this.showToast('Failed to delete desire', true);
+           }
+          }
+
+           async completeDesire(id) {
+               const desire = this.desires.find(d => d.id === id);
+               if (!desire) return;
+             desire.completed = true;
+             desire.completionDate = new Date().toISOString();
+             try {
+                 if (this.userId) {
+                   const desireDoc = doc(db, 'users', this.userId, 'desires', id);
+                     await updateDoc(desireDoc, {
+                        completed: true,
+                         completionDate: desire.completionDate
+                  });
+                }
+                   this.displayDesires();
+                    this.showToast('Desire completed! 🎉');
+              } catch (error) {
+                 console.error('Error completing desire:', error);
+                   this.showToast('Failed to complete desire', true);
+                }
+        }
+             async addNote(cardId, noteText) {
+                if (!noteText) return;
+               const desire = this.desires.find(d => d.id === cardId);
+                 if (!desire) return;
+                const note = {
+                  id: Date.now().toString(),
+                   text: noteText,
+                  date: new Date().toISOString()
+              };
+              try {
+                   if (this.userId) {
+                       const desireDoc = doc(db, 'users', this.userId, 'desires', cardId);
+                       await updateDoc(desireDoc, {
+                           notes: arrayUnion(note)
+                       });
+                    }
+                  if (!desire.notes) desire.notes = [];
+                    desire.notes.push(note);
+                   this.displayDesires();
+                    this.showToast('Note added successfully! 📝');
+              } catch (error) {
+                 console.error('Error adding note:', error);
+                  this.showToast('Failed to add note', true);
+             }
+           }
+
+         async deleteNote(cardId, noteId) {
+             const desire = this.desires.find(d => d.id === cardId);
+             if (!desire) return;
+                const note = desire.notes.find(n => n.id === noteId);
+             try {
+                 if (this.userId) {
+                     const desireDoc = doc(db, 'users', this.userId, 'desires', cardId);
+                      await updateDoc(desireDoc, {
+                          notes: arrayRemove(note)
+                     });
+                    }
+                   desire.notes = desire.notes.filter(n => n.id !== noteId);
+                    this.displayDesires();
+                    this.showToast('Note deleted successfully! 🗑️');
+              } catch (error) {
+                   console.error('Error deleting note:', error);
+                 this.showToast('Failed to delete note', true);
+                }
+           }
+
+
+          async addGratitudeNote(cardId, gratitudeText) {
+              if (!gratitudeText) return;
+              const desire = this.desires.find(d => d.id === cardId);
+                 if (!desire) return;
+                 const gratitudeNote = {
+                     id: Date.now().toString(),
+                     text: gratitudeText,
+                      date: new Date().toISOString()
+                };
+              try {
+                    if (this.userId) {
+                       const desireDoc = doc(db, 'users', this.userId, 'desires', cardId);
+                          await updateDoc(desireDoc, {
+                            gratitudeNotes: arrayUnion(gratitudeNote)
+                       });
+                     }
+                  if (!desire.gratitudeNotes) desire.gratitudeNotes = [];
+                    desire.gratitudeNotes.push(gratitudeNote);
+                    this.displayDesires();
+                     this.showToast('Gratitude expressed! 🙏');
+              } catch (error) {
+                    console.error('Error adding gratitude note:', error);
+                 this.showToast('Failed to add gratitude note', true);
+               }
+           }
+            displayDesires() {
+              const filteredDesires = this.desires.filter(d =>
+                    d.completed === this.isViewingArchive
+               );
+              if (!filteredDesires.length) {
+                    this.list.innerHTML = '';
+                  this.emptyState.style.display = 'block';
+                  this.emptyState.textContent = this.isViewingArchive ?
+                        'Your archive is empty.' :
+                       'No active desires yet. Start by adding one!';
+                  return;
+                }
+                this.emptyState.style.display = 'none';
+               this.list.innerHTML = filteredDesires
+                     .map(desire => `<desire-card desire = '${JSON.stringify(desire)}'></desire-card>`).join('');
+            }
+
+            showToast(message, isError = false) {
+              this.toastEl.innerText = message;
+            this.toastEl.style.background = isError ?
+                   'rgba(245, 101, 101, 0.95)' :
+                    'rgba(72, 187, 120, 0.95)';
+                this.toastEl.classList.add('show');
+             setTimeout(() => this.toastEl.classList.remove('show'), 3000);
+            }
+      }
+   window.desireTracker = new DesireTracker();
+  </script>
+</body>
+
+</html>
